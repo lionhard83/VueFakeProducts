@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel='stylesheet' href="style.css"></link>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id='app' v-cloak>
+    <navbar-header
+    v-bind:tokens = 'tokens'
+    v-bind:ct = 'currentToken'
+    v-bind:fn = 'setToken'
+    ></navbar-header>
+    <div class="container mt-5">
+    <form v-if='currentToken !== "admin"'>
+      <div class="form-group">
+        <label for="exampleInputEmail1">products</label>
+        <input type="string" class="form-control" v-model='newOrder.products' placeholder="Enter your products">
+        <small class="form-text text-muted">Inserisci il tuo ordine qui</small>
+      </div>
+      <div class="form-group">
+        <label >Price</label>
+        <input v-model='newOrder.price' type="number" class="form-control"  placeholder="Price">
+      </div>
+      <button type="button" @click='createOrder()' class="btn btn-primary">Submit</button>
+    </form>
+    <div class="dropdown mt-5" v-if='currentToken=== "admin"'>
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{findBy}}
+      </button>
+      <div class="dropdown-menu" aria-labelledby="{{findBy}}">
+        <span class="dropdown-item" @click='findBy="status"'>Find by Status</span>
+        <span class="dropdown-item" @click='findBy="users"'>Find by User</span>
+      </div>
+    </div>
+    <div v-if='currentToken=== "admin"'>
+      <select v-if='findBy==="status"' v-model='findByStatus'  v-on:change="getAllOrders()">
+        <option value="null">All</option>
+        <option value="new">New</option>
+        <option value="ready">Ready</option>
+        <option value="closed">Closed</option>
+      </select>
+      <select v-if='findBy==="users"' v-model='findByUser'  v-on:change="getAllOrders()">
+        <option value="null">All</option>
+        <option value="new" v-for='token in tokens' v-if='token !== "admin"'>{{token}}</option>
+      </select>
+    </div>
+    <ul class="list-group mt-5">
+      <li v-for='order in orders' class="list-group-item d-flex justify-content-between align-items-center">
+        {{order.products}}
+        <button @click='deleteOrder(order.id)' type="button" class="btn btn-outline-danger" v-if='currentToken=== "admin"'>Delete</button>
+        <span class="badge badge-success float-right" v-if='currentToken=== "admin"'>{{order.user}}</span>
+        <select v-if='currentToken=== "admin"' v-model="order.status" v-on:change="setStatus(order.id, order.status)">
+          <option value="new">New</option>
+          <option value="ready">Ready</option>
+          <option value="closed">Closed</option>
+        </select>
+        <span class="badge badge-primary">{{order.price}}</span>
+      </li>
+    </ul>
+    <div class="alert alert-success mt-5" role="alert" v-if='currentToken=== "admin"'>
+      <h4 class="alert-heading">Well done!</h4>
+      <p>Aww yeah, you successfully read this important alert message. This example text is going to run a bit longer so that you can see how spacing within an alert works with this kind of content.</p>
+      <hr>
+      <p class="mb-0">Oggi hai guadagnato {{profit}} €</p>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource"></script>
+<script src="navbar.js"></script>
+<script src="app.js"></script>
+</body>
